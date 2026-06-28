@@ -1,0 +1,20 @@
+.env
+
+# Папка виртуального окружения
+venv/
+.venv/
+
+# Кэш Python
+__pycache__/
+*.pyc
+
+# Allure результаты
+allure-results/
+allure-report/
+
+# Playwright
+playwright-report/
+test-results/
+
+# PyCharm
+.idea/
