@@ -5,10 +5,12 @@ class LoginPage:
     URL = "https://student.bank.easyitlab.tech/#/login"
     def __init__(self, page: Page):
         # page — это объект браузера который передаёт Playwright
-        self.page = Page
-        self.email_input = page.get_by_label("Email")
-        self.password_input = page.get_by_label("Пароль")
-        self.submit_button = page.get_by_role("button", name="Войти")
+        self.page = page
+        # Находим поля по type атрибуту
+        self.email_input = page.locator('input[type="email"]')
+        self.password_input = page.locator('input[type="password"]')
+        # Кнопку находим по тексту
+        self.submit_button = page.locator("button").first
 
     def open(self):
         # Открываем страницу логина в браузере
@@ -18,4 +20,5 @@ class LoginPage:
         # Вводим email, пароль и нажимаем войти
         self.email_input.fill(email)
         self.password_input.fill(password)
+        self.submit_button.wait_for(state="visible")
         self.submit_button.click()

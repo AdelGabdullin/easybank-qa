@@ -5,7 +5,7 @@ from tests.ui.pages.login_page import LoginPage
 
 
 @pytest.fixture(scope="session")
-def aauthenticated_page(browser):
+def authenticated_page(browser):
     # Создаём новую страницу в браузере
     page = browser.new_page()
     # Создаём объект страницы логина
