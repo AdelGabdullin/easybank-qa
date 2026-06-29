@@ -1,9 +1,11 @@
 import pytest
 import requests
+from requests import session
+
 from utils.auth import get_token
 from config.settings import API_URL
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def api_client():
     # Получаем токен один раз
     token = get_token()
