@@ -4,6 +4,9 @@ FROM python:3.12-slim
 # Устанавливаем рабочую директорию внутри контейнера
 WORKDIR /app
 
+# Принудительно headless режим для Playwright в контейнере
+ENV PLAYWRIGHT_HEADLESS=1
+
 # Копируем файл зависимостей
 COPY requirements.txt .
 
