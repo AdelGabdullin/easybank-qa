@@ -24,3 +24,7 @@ class EmployeesPage:
         self.email_input.fill(email)
         self.password_input.fill(password)
         self.create_button.click()
+
+    def delete_employee_by_row(self):
+        self.page.once("dialog", lambda dialog: dialog.accept())
+        self.page.get_by_role("button", name="Delete", exact=True).first.click()
