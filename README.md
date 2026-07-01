@@ -11,6 +11,8 @@
 - Allure
 - Docker
 - GitHub Actions
+- Pydantic
+- pytest-xdist
 
 ## Структура проекта
 
@@ -51,6 +53,7 @@ easybank-qa/
 | Dashboard | UI | отображение карточек статистики |
 | Employees | UI | создание через форму |
 | Employees | UI | баг: удаление через UI (xfail) |
+| Employees | API | Pydantic валидация схемы + бизнес-логика |
 
 ## Локальный запуск
 
