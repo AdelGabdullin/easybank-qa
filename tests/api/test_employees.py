@@ -1,9 +1,9 @@
 import allure
 from faker import Faker
-# Создаём объект Faker с русской локалью
+from schemas.employee import EmployeeResponse
+
 fake = Faker("ru_RU")
 
-# Словарь для хранения данных между тестами
 employee_data = {}
 
 
@@ -22,11 +22,22 @@ def test_create_employee(api_client):
             json={"email": email, "full_name": full_name, "password": "employee123"}
         )
 
-    with allure.step("Проверяем статус код и сохраняем id"):
+    with allure.step("Проверяем статус код 200"):
         assert response.status_code == 200
-        data = response.json()
-        assert "id" in data
-        employee_data["id"] = data["id"]
+
+    with allure.step("Валидируем схему ответа через Pydantic"):
+        employee = EmployeeResponse(**response.json())
+
+    with allure.step("Проверяем бизнес-логику"):
+        assert employee.email == email
+        assert employee.full_name == full_name
+        assert len(employee.email) > 0
+        assert len(employee.full_name) > 0
+        assert not (employee.is_active and employee.is_blocked)
+        assert employee.clients_count >= 0
+        assert employee.tickets_count >= 0
+        employee_data["id"] = employee.id
+
 
 @allure.feature("Employees")
 @allure.story("CRUD")
@@ -35,14 +46,20 @@ def test_get_employee(api_client):
     with allure.step("Отправляем GET запрос на получение сотрудника по id"):
         response = api_client.get(
             f"{api_client.base_url}/students/employees/{employee_data['id']}"
-    )
+        )
 
-    with allure.step("Проверяем что статус код 200"):
+    with allure.step("Проверяем статус код 200"):
         assert response.status_code == 200
 
-    with allure.step("Проверяем что email cоответствует созданному сотруднику"):
-        data = response.json()
-        assert data["email"] == employee_data["email"]
+    with allure.step("Валидируем схему ответа через Pydantic"):
+        employee = EmployeeResponse(**response.json())
+
+    with allure.step("Проверяем что получили именно созданного сотрудника"):
+        assert employee.email == employee_data["email"]
+        assert len(employee.full_name) > 0
+        assert not (employee.is_active and employee.is_blocked)
+        assert employee.clients_count >= 0
+        assert employee.tickets_count >= 0
 
 
 @allure.feature("Employees")
@@ -52,29 +69,34 @@ def test_update_employee(api_client):
     with allure.step("Генерируем новые данные для обновления"):
         new_full_name = fake.name()
         new_email = f"updated.{fake.uuid4()[:8]}@demobank.local"
-    with allure.step("Делаем patch запрос на изменение по id "):
+
+    with allure.step("Делаем PATCH запрос на изменение сотрудника по id"):
         response = api_client.patch(
-        f"{api_client.base_url}/students/employees/{employee_data['id']}",
-        json={
-            "email": new_email,
-            "full_name": new_full_name
-        }
-    )
+            f"{api_client.base_url}/students/employees/{employee_data['id']}",
+            json={"email": new_email, "full_name": new_full_name}
+        )
+
     with allure.step("Проверяем статус код 200"):
         assert response.status_code == 200
+
+    with allure.step("Валидируем схему ответа через Pydantic"):
+        employee = EmployeeResponse(**response.json())
+
     with allure.step("Проверяем что данные действительно обновились"):
-        data = response.json()
-        assert data["full_name"] == new_full_name
-        assert data["email"] == new_email
+        assert employee.full_name == new_full_name
+        assert employee.email == new_email
+        assert not (employee.is_active and employee.is_blocked)
+
 
 @allure.feature("Employees")
 @allure.story("CRUD")
 @allure.title("Удаление созданного сотрудника")
 def test_delete_employee(api_client):
-    with allure.step("Делаем delete запрос по id сотрудника"):
+    with allure.step("Делаем DELETE запрос по id сотрудника"):
         response = api_client.delete(
             f"{api_client.base_url}/students/employees/{employee_data['id']}"
-    )
+        )
+
     with allure.step("Проверяем статус код 200"):
         assert response.status_code == 200
 
